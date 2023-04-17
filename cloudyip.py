@@ -19,16 +19,21 @@ def scanner(websites):
         try:
             ips = []
             name_servers = []
+            ipv6 = []
             # resolve the A records for the website
             a_records = dns.resolver.resolve(website, 'A')
             for rdata in a_records:
                 ips.append(rdata.to_text())
+            # resolve the AAAA records for the website
+            aaaa_records = dns.resolver.resolve(website, 'AAAA')
+            for rdata in aaaa_records:
+                ipv6.append(rdata.to_text())
             # resolve the NS records for the website
             ns_records = dns.resolver.resolve(website, 'NS')
             for rdata in ns_records:
                 name_servers.append(rdata.to_text().lower())
             # store the results in the dictionary
-            results[website] = {'ips': ips, 'ns': name_servers} 
+            results[website] = {'ips': ips,'ipv6': ipv6, 'ns': name_servers} 
         except Exception as e:
             #print(f"Error resolving {website}: {e}")
             continue
@@ -37,8 +42,8 @@ def scanner(websites):
     for url, detail in results.items():
         for ns in detail['ns']:
             if pattern.findall(ns):
-                print(f'{url} ====== {detail["ips"]}')
-                outlist.append((url, detail["ips"]))
+                print(f'{url} ====== {detail["ips"]}++++++{detail["ipv6"]}')
+                outlist.append((url, detail["ips"], detail["ipv6"]))
                 break
     return outlist
 
@@ -51,12 +56,15 @@ with concurrent.futures.ThreadPoolExecutor() as executer:
 
 cf_webaddresses = []
 ip_list = []
+ipv6_list = []
 i_num = 0
 for lists in output:
     for webgroup in lists:
         cf_webaddresses.append(webgroup[0])
         for ips in webgroup[1]:
             ip_list.append(ips)
+        for ipv6s in webgroup[2]:
+            ipv6_list.append(ipv6s)
 
 
 scanips = {}
@@ -67,6 +75,7 @@ for ip in ip_list:
         scanips["workingIPs"].append({"delay": i_num, "ip": ip})
     else:
         continue
+
 print(f'total ips: {i_num}')
 scanips["totalFoundWorkingIPs"] = i_num
 scanips["totalFoundWorkingIPsCurrentRange"] = i_num
@@ -75,6 +84,9 @@ scanips["endDate"] = "2023-04-04T10:41:35.5737056-07:05"
 
 with open('ips.json', 'w') as f:
     json.dump(scanips, f)
+
+with open('ipv6.txt', 'w') as f:
+    f.write("\n".join(ipv6_list))
 
 with open("url_cloudflare.txt", "w") as f:
     f.write("\n".join(cf_webaddresses))
