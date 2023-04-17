@@ -6,8 +6,8 @@ import concurrent.futures
 
 pattern = re.compile(r"[^.,\s]*cloudflare[^.,\s]*[.,]?", re.IGNORECASE)
 # list of websites
-farsiweb1 = pd.read_csv('./chunk0.csv')
-websites = [url for url in farsiweb1.loc[:, 'domain']]
+chunk0 = pd.read_csv('./chunk0.csv')
+websites = [url for url in chunk0.loc[:, 'domain']]
 threads = 10000
 chunklength = len(websites) // threads
 input_urls = [websites[i: i + chunklength] for i in range(0, len(websites), chunklength)]
