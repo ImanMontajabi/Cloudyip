@@ -62,7 +62,7 @@ with concurrent.futures.ThreadPoolExecutor() as executer:
 cf_webaddresses = []
 ip_list = []
 ipv6_list = []
-i_num = 0
+ipv6_num = 0
 for lists in output:
     for webgroup in lists:
         cf_webaddresses.append(webgroup[0])
@@ -70,24 +70,27 @@ for lists in output:
             ip_list.append(ips)
         for ipv6s in webgroup[2]:
             ipv6_list.append(ipv6s)
+            ipv6_num += 1
 
 
 scanips = {}
 scanips["workingIPs"] = []
+ipv4_num = 0
 for ip in ip_list:
     if ip:
-        i_num += 1
-        scanips["workingIPs"].append({"delay": i_num, "ip": ip})
+        ipv4_num += 1
+        scanips["workingIPs"].append({"delay": ipv4_num, "ip": ip})
     else:
         continue
 
-print(f'total ips: {i_num}')
-scanips["totalFoundWorkingIPs"] = i_num
-scanips["totalFoundWorkingIPsCurrentRange"] = i_num
+print(f'total ipv4: {ipv4_num}')
+print(f'total ipv6: {ipv6_num}')
+scanips["totalFoundWorkingIPs"] = ipv4_num
+scanips["totalFoundWorkingIPsCurrentRange"] = ipv4_num
 scanips["startDate"] = "2023-04-04T10:41:35.5737055-07:00"
 scanips["endDate"] = "2023-04-04T10:41:35.5737056-07:05"
 
-with open('ips.json', 'w') as f:
+with open('ip4scan.json', 'w') as f:
     json.dump(scanips, f)
 
 with open('ipv6.txt', 'w') as f:
