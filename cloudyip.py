@@ -1,13 +1,18 @@
 import dns.resolver
-import pandas as pd
 import re
 import json
 import concurrent.futures
+import csv
 
 pattern = re.compile(r"[^.,\s]*cloudflare[^.,\s]*[.,]?", re.IGNORECASE)
 # list of websites
-chunk0 = pd.read_csv('./chunk0.csv')
-websites = [url for url in chunk0.loc[:, 'domain']]
+websites = []
+with open('./chunk0.csv', 'r') as chunk0:
+    csv_reader = csv.reader(chunk0)
+    for row in csv_reader:
+        websites.append(row[0])
+#print(websites)
+
 threads = 10000
 chunklength = len(websites) // threads
 input_urls = [websites[i: i + chunklength] for i in range(0, len(websites), chunklength)]
@@ -42,7 +47,7 @@ def scanner(websites):
     for url, detail in results.items():
         for ns in detail['ns']:
             if pattern.findall(ns):
-                print(f'{url} ====== {detail["ips"]}++++++{detail["ipv6"]}')
+                print(f'\n{url}\n-------------\n{detail["ips"]}\n{detail["ipv6"]}\n-------------')
                 outlist.append((url, detail["ips"], detail["ipv6"]))
                 break
     return outlist
