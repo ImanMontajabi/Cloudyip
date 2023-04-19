@@ -15,7 +15,8 @@ try:
     how_many = int(input(f'\nHow many url do you want to check?[1-{len(websites)}]:'))
 except:
     how_many = len(websites)
-how_many = len(websites) if how_many > len(websites)
+if how_many > len(websites):
+    how_many = len(websites)
 threads = 10 if how_many >= 10 else 1
 input_urls = []
 for i in range(0, how_many, threads):
