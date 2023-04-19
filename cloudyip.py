@@ -11,12 +11,18 @@ with open('./chunk0.csv', 'r') as chunk0:
     csv_reader = csv.reader(chunk0)
     for row in csv_reader:
         websites.append(row[0])
-#print(websites)
+try:
+    how_many = int(input(f'\nHow many url do you want to check?[1-{len(websites)}]:'))
+except:
+    how_many = len(websites)
 
-threads = 10000
-chunklength = len(websites) // threads
-input_urls = [websites[i: i + chunklength] for i in range(0, len(websites), chunklength)]
-
+threads = 10 if how_many >= 10 else 1
+input_urls = []
+for i in range(0, how_many, threads):
+    if (i + threads) <= how_many:
+        input_urls.append(websites[i: i + threads])
+    else:
+        input_urls.append(websites[i: how_many])
 def scanner(websites):
     # dictionary to store the results
     results = {}
