@@ -28,7 +28,7 @@ for i in range(0, how_many, threads):
     else:
         input_urls.append(websites[i: how_many])
 def scanner(websites):
-    # dictionary to store the results
+    # dictionary to save result
     results = {}
     for website in websites:
         try:
