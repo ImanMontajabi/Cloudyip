@@ -5,12 +5,13 @@ import concurrent.futures
 import csv
 
 pattern = re.compile(r"[^.,\s]*cloudflare[^.,\s]*[.,]?", re.IGNORECASE)
-# list of websites
-websites = []
+
+websites = [] # list of websites
 with open('./chunk0.csv', 'r') as chunk0:
     csv_reader = csv.reader(chunk0)
     for row in csv_reader:
         websites.append(row[0])
+# set max limit search
 try:
     how_many = int(input(f'\nHow many url do you want to check?[1-{len(websites)}]:'))
 except:
@@ -20,6 +21,7 @@ if how_many > len(websites):
     how_many = len(websites)
 if how_many < 1:
     how_many = 1
+# set threads
 threads = 10 if how_many >= 10 else 1
 input_urls = []
 for i in range(0, how_many, threads):
