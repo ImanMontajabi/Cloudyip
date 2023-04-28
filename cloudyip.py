@@ -14,7 +14,7 @@ with open('./chunk0.csv', 'r') as chunk0:
 # set max limit search
 try:
     how_many = int(input(f'\nHow many url do you want to check?[1-{len(websites)}]:'))
-except:
+except ValueError:
     how_many = len(websites)
 
 if how_many > len(websites):
