@@ -3,6 +3,8 @@ import re
 import json
 import concurrent.futures
 import csv
+from progress.spinner import PixelSpinner
+
 
 pattern = re.compile(r"[^.,\s]*cloudflare[^.,\s]*[.,]?", re.IGNORECASE)
 
@@ -13,16 +15,14 @@ with open('./chunk0.csv', 'r') as chunk0:
         websites.append(row[0])
 # set max limit search
 try:
-    how_many = int(input(f'\nHow many url do you want to check?[1-{len(websites)}]:'))
+    how_many = int(input(f'\nHow many url do you want to check?[1-{len(websites)}]:').strip())
 except ValueError:
     how_many = len(websites)
 
-if how_many > len(websites):
-    how_many = len(websites)
-if how_many < 1:
-    how_many = 1
+how_many = max(how_many, 1)
+how_many = min(how_many, len(websites))
 # set threads
-threads = 10 if how_many >= 10 else 1
+threads = 30 if how_many >= 30 else 1
 input_urls = []
 for i in range(0, how_many, threads):
     if (i + threads) < how_many:
@@ -59,13 +59,15 @@ def scanner(websites):
     for url, detail in results.items():
         for ns in detail['ns']:
             if pattern.findall(ns):
-                print(f'\n{url}\n-------------\n{detail["ips"]}\n{detail["ipv6"]}\n-------------')
+                ipv4 = '  '.join(detail["ips"])
+                ipv6 = '  '.join(detail["ipv6"])
+                print(f'---------------------------\nurl: {url}\nipv4: {ipv4}\nipv6: {ipv6}')
                 outlist.append((url, detail["ips"], detail["ipv6"]))
                 break
     return outlist
 
 output = []
-with concurrent.futures.ThreadPoolExecutor() as executer:
+with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executer:
     tasks = [executer.submit(scanner, url) for url in input_urls]
     for task in concurrent.futures.as_completed(tasks):
         result = task.result()
@@ -95,7 +97,7 @@ for ip in ip_list:
     else:
         continue
 
-print(f'total ipv4: {ipv4_num}')
+print(f'---------------------------\ntotal ipv4: {ipv4_num}')
 print(f'total ipv6: {ipv6_num}')
 scanips["totalFoundWorkingIPs"] = ipv4_num
 scanips["totalFoundWorkingIPsCurrentRange"] = ipv4_num
